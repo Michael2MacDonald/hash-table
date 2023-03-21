@@ -18,18 +18,20 @@
 
 
 void HashTable::expand() {
-	std::cout << "=== Expand ===\n";
+	std::cout << "Expanding... ";
 	//std::cout << "========== EXPANDING! ===========\n";
 	// todo
 	int newPoolSize = poolSize;
 	Student*** newtable;// = (Student***)std::malloc(newPoolSize);
 	while(1) {
-		std::cout << "========== EXPANDING! ===========\n";
+		//std::cout << "========== EXPANDING! ===========\n";
 		newPoolSize = newPoolSize*2;
-		newtable = (Student***)std::malloc(newPoolSize);
+		//newtable = (Student***)std::malloc(newPoolSize);
+		newtable = new Student**[newPoolSize];
 		for (int i=0; i<newPoolSize; i++) {
-			std::cout << "Value Table[]: " << table[i] << '\n';
-			newtable[i] = (Student**)std::malloc(3);
+			//std::cout << "Value Table[]: " << table[i] << '\n';
+			//newtable[i] = (Student**)std::malloc(3);
+			newtable[i] = new Student*[3];
 			for (int j=0; j<3; j++) newtable[i][j] = nullptr;
 		}
 		//std::free(newtable[1]);
@@ -40,25 +42,25 @@ void HashTable::expand() {
 				if (HashTable::table[i][j] != nullptr) {
 					//std::cout << "Pointer: " << HashTable::table[i][j] << "\n";
 					Student* student = HashTable::table[i][j];
-					std::cout << "Student ID:" << student->id << "\n";
+					//std::cout << "Student ID:" << student->id << "\n";
 					int hash = HashTable::hash(student->id, newPoolSize);
 					int full = 0;
 					for (int k=0; k<3; k++) { if (newtable[hash][k] != nullptr) full++; }
 					if (full >= 3) {
+						std::cout << "\nExpanding again... ";
 						br = 0;
 						//std::cout << "test HH\n";
 						//for (int d=0; d<newPoolSize; d++) { std::cout << d << "\n"; delete[] newtable[d]; }
 						for (int d=0; d<newPoolSize; d++) {
-							
-							std::cout << "Addr: " << newtable[d] << "\n";
-							std::free(newtable[d]);
-							
+							//std::cout << "Addr: " << newtable[d] << "\n";
+							//std::free(newtable[d]);
+							delete[] newtable[d];
 						}
 						//std::cout << "test x\n";
-						std::free(newtable);
-						//delete[] newtable;
+						//std::free(newtable);
+						delete[] newtable;
 						
-						std::cout << "test 2\n";
+						//std::cout << "test 2\n";
 					} else { // add if not full
 						newtable[hash][full] = student;
 					}
@@ -69,15 +71,19 @@ void HashTable::expand() {
 	}
 //	for (HashTable::poolSize)
 //		delete HashTable::table[][];
-	//for (int i=0; i<HashTable::poolSize; i++) { std::cout << i << "\n"; delete[] HashTable::table[i]; }
-	std::free(HashTable::table);
+	for (int i=0; i<HashTable::poolSize; i++) { /*std::cout << i << "\n";*/ delete[] HashTable::table[i]; }
+	//for (int i=0; i<HashTable::poolSize; i++) { std::cout << i << "\n"; std::free(HashTable::table[i]); }
+	//std::free(HashTable::table);
+	delete[] HashTable::table;
 	HashTable::table = newtable;
-	std::cout << "==== DONE! ====\n";
+	poolSize = newPoolSize;
+	//std::cout << "==== Done Expanding! ====\n";
+	std::cout << "Done!\n";
 }
 
 
 Student* HashTable::get(unsigned int id) {
-	std::cout << "=== Get ===\n";
+	//std::cout << "=== Get ===\n";
 	unsigned int i = HashTable::hash(id, HashTable::poolSize);
 	//std::cout << UINT_MAX << "\n";
 	for (int j=0; j<3; j++) {
@@ -91,8 +97,8 @@ Student* HashTable::get(unsigned int id) {
 
 
 void HashTable::add(Student* student) {
-	std::cout << "=== Add ===\n";
-	std::cout << "Adding student: " << student->id << "  ";
+	//std::cout << "=== Add ===\n";
+	//std::cout << "Adding student: " << student->id << "\n";
 	// Check if a student with that ID exists
 	if (HashTable::get(student->id) != nullptr) { /**ERROR_DUP_STUDENT**/
 		std::cout << "==== ERROR_DUP_STUDENT_ID! ====\n";
@@ -103,11 +109,11 @@ void HashTable::add(Student* student) {
 	unsigned int index;
 	while (true) { // keep expanding until collitions are low enough
 		index = HashTable::hash((unsigned int)student->id, HashTable::poolSize); // get index
-		std::cout << "Hash: " << index;// << "\n";
+		//std::cout << "Hash: " << index;// << "\n";
 		// Check if the index is already full
 		int full = 0;
 		for (int i=0; i<3; i++) { if (HashTable::table[index][i] != nullptr) full++; }
-		std::cout << "  Full: " << full << "\n";
+		//std::cout << "  Full: " << full << "\n";
 		if (full >= 3) {
 			HashTable::expand();
 		} else { // add if not full
@@ -121,7 +127,7 @@ void HashTable::add(Student* student) {
 
 
 bool HashTable::del(unsigned int id) {
-	std::cout << "=== Del ===\n";
+	//std::cout << "=== Del ===\n";
 	unsigned int i = HashTable::hash(id, HashTable::poolSize);
 	for (int j=0; j<3; j++) {
 		if (HashTable::table[i][j] == nullptr) continue;
@@ -138,8 +144,8 @@ bool HashTable::del(unsigned int id) {
 
 
 void HashTable::print() {
-	std::cout << "=== Print ===\n";
-	std::cout << "Value Table[0][0]: " << HashTable::table[0][0] << '\n';
+	//std::cout << "=== Print ===\n";
+	//std::cout << "Value Table[0][0]: " << HashTable::table[0][0] << '\n';
 	//if (Students->getStart() == nullptr) {
 	//  std::cout << "- No Students -\n";
 	//  return;
@@ -149,9 +155,9 @@ void HashTable::print() {
 	for (int i=0; i<HashTable::poolSize; i++) {
 		//std::cout << "test 2\n";
 		for(int j=0; j<3; j++) {
-			std::cout << "i: " << i << " j: " << j << '\n';
-			std::cout << "Value: " << HashTable::table[i][j] << '\n';
-			std::cout << "Value: " << table[i][j] << '\n';
+			//std::cout << "i: " << i << " j: " << j << '\n';
+			//std::cout << "Value: " << HashTable::table[i][j] << '\n';
+			//std::cout << "Value: " << table[i][j] << '\n';
 			//continue;
 			if (HashTable::table[i][j] != nullptr) {
 				hehe=0;
@@ -170,5 +176,4 @@ void HashTable::print() {
 	}
 	if (hehe) std::cout << "- No Students -\n\n";
 }
-
 

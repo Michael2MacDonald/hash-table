@@ -25,7 +25,7 @@ void del(HashTable *Students);
 
 
 int main() {
-	std::cout << "=== Main ===\n";
+	//std::cout << "=== Main ===\n";
 	//Student* tmp = new Student();
 	//*tmp = { .id = 123456, .firstName = "John", .lastName = "Doe", .gpa = 3.817 };
 
